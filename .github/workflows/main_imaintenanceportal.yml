@@ -47,13 +47,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_08F05AC222CD486C93DD50EB29F5E8BB }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_14D89A2679214C6999F7CF58ACC57208 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CB02C50E317347759C7330E9AA3F2E69 }}
+
+      - name: Set SQL Connection String in Azure App Settings
+        run: |
+          az webapp config appsettings set \
+            --name 'IMaintenancePortal' \
+            --resource-group 'IMaintenancePortal_group' \
+            --settings SQL_CONNECTION_STRING="${{ secrets.SQL_CONNECTION_STRING }}"
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CB02C50E317347759C7330E9AA3F2E69 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -62,4 +71,3 @@ jobs:
           app-name: 'IMaintenancePortal'
           slot-name: 'Production'
           package: .
-          
